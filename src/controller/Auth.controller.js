@@ -36,6 +36,7 @@ const LoginAuth = async (req, res) =>{
         return res.status(400).json({message: "Invalid Password"})
     }
 }
- Module.exports = {
+
+module.exports = {
     RegisterAuth, LoginAuth
 }

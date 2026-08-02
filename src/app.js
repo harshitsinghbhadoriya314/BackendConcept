@@ -5,6 +5,6 @@ const app = express();
 
 app.use(express.json());
 app.use(Cookie());
-app.use("./api/auth", Authroute);
+app.use("./api/auth", AuthRoute);
 
 module.exports = app;

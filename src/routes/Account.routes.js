@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const AuthMiddleware = require('../middleware/Authmiddleware');
+const CreateAccounts = require('../controller/Account.controller');
 
-router.post("/createAccount", CreateAccounts)
+router.post("/", AuthMiddleware, CreateAccounts.CreateAccounts())
 
-modeule.exports = router;
+module.exports = router;

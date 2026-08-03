@@ -8,10 +8,9 @@ const AuthMiddleware = async(req, res, next) => {
     }
     try{
         const decoded_JWT = JWT.verify(verifyToken, process.env.JWT_SECRET);
-        const user = await userModel.findById(decoded_JWT, userId).select("password");
+        const user = await userModel.findById(decoded_JWT.userId).select("password");
         req.user = user;
         return next();
-
     }
     catch(err){
         return res.status(401).json({message: "Unauthorized , token is not Valid"})

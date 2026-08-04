@@ -4,7 +4,7 @@ const TransactionSchema = new mongoose.Schema({
    fromAccount :{
     type : Number ,ref: "accounts", required  : [true, "From Account is Required"], minlength : [12, "only 12 digit Account Number"]
  , index : true}, 
-   ToAccount :{
+   toAccount :{
     type : Number , ref: "accounts", required  : [true, "To Account is Required"], minlength : [12, "only 12 digit Account Number"]
   ,index },
    Balance :{

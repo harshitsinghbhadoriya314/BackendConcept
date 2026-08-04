@@ -4,7 +4,7 @@ const historyModel = new mongoose.Schema({
     AccountNumber : {
         type : Number , ref : "accounts", required : [true, "Account Number is Required"], immutable : true, minlength : [12, "only 12 digit Account Number"]
     }, 
-    Transaction: {
+    TransactionID: {
         type : mongoose.Schema.Types.ObjectId, ref : "transactions",immutable : true, required : [true, "Transaction ID is Required"]
     }, 
     Amount :{
@@ -15,7 +15,7 @@ const historyModel = new mongoose.Schema({
     }, 
     Waysof_transaction :{
         type : String, enum :{
-            Values : [Credit, Debit]
+            Values : ["Credit","Debit"]
         }, immutable : true, required : [true, "Way of Transaction is Required"]
     }
 })

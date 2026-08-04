@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const transaction = require('../models/transaction.model');
 const Account = require('../models/Account.model');
+const trans_history = require("../models/transaction.model")
 //Flow of Transaction :
 // validate request 
 // check key for validation
@@ -16,12 +17,12 @@ const Account = require('../models/Account.model');
 
 function CreateTransaction(req, res){
     // request validation
-    const {fromAccount, ToAccount, Balance, Transaction_status, KeyforValid} = req.body;
-    if (!fromAccount || !ToAccount || !Balance || !Transaction_status || !KeyforValid){
+    const {fromAccount, toAccount, Balance, Transaction_status, KeyforValid} = req.body;
+    if (!fromAccount || !toAccount || !Balance || !Transaction_status || !KeyforValid){
         return res.status(400).json({message: "All fields are required "})
     }
     const FromAccount = await AccountModel.findone({AccountNumber : fromAccount});
-    const ToAccount = await AccountModel.findone({AccountNumber : ToAccount});
+    const ToAccount = await AccountModel.findone({AccountNumber : toAccount});
     if (!FromAccount || !ToAccount){
         return res.status(400).json({message: "Invalid Account Number"})
     }
@@ -39,17 +40,46 @@ function CreateTransaction(req, res){
         }
     }
     // check account status
-    const check_Status = await Account.findOne({status : status});
-    if (check_Status){
-       if (check_Status.status === "Frozen"){
-        return res.status(400).json({message : "Account out of Service Temperory"})
-       } 
-       if (check_Status.status === "Closed"){
-        return res.status(400).json({message : "Account is Restricted"})
-       }
-        if (check_Status.status === "Active"){
-        return res.status(200).json({message : "Active For Transaction"})
-       }  
+    if (FromAccount.status !== "Active" || ToAccount.status !== "Active"){
+        return res.status(200).json({message : "Both Account are Active for Transaction" });
+    }
+    // check balance status of account:
+    const Balance = await FromAccount.get_Balance()
+    if (Balance < Amounts){
+        return res.status(400).json({message : `Insufficient Balance , Cuurent Balance ${Balance} and Amount is ${Amount}`})
     } 
+    // create transaction
+    const session = await mongoose.startsession();
+    session.startTransaction()
+        const transaction = await transaction.create({
+            fromAccount, 
+            toAccount, 
+            Balance, 
+            Transaction_status : "Pending", 
+            LastUpdated, 
+            KeyforValid
+        }, {session})
 
+        const Debitentry = await trans_history.create({
+            AccountNumber : fromAccount, 
+            TransactionID : transaction._id, 
+            Amount : Amount, 
+            LastUpdated : Date.now(),
+            Waysof_transaction : "Debit", 
+        }, {session})
+
+        const Creditentry = await trans_history.create({
+            AccountNumber : toAccount, 
+            TransactionID : transaction._id, 
+            Amount : Amounts, 
+            LastUpdated : Date.now(),
+            Waysof_transaction : "Credit", 
+        },{session})
+    transaction.status == "Completed"    
+    await transaction.save({session})
+
+    await session.commitTransaction()
+    session.endSession()
 }
+
+//sendemails 
